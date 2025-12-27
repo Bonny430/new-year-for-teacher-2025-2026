@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 新年感恩祝福</title>
+    <title>2026 新年感恩賀卡</title>
     <style>
         :root {
             --gold: #d4af37;
             --deep-blue: #1a2a6c;
+            --card-bg: #fffdf9;
         }
 
         body {
@@ -16,12 +17,12 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background: radial-gradient(circle at center, #1a2a6c 0%, #101835 100%);
-            font-family: "Microsoft JhengHei", sans-serif;
+            background: radial-gradient(circle at center, #1a2a6c 0%, #0a1128 100%);
+            font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
             overflow: hidden;
         }
 
-        /* 感恩版按鈕：優雅金色感 */
+        /* 按鈕：金屬質感 */
         #giftButton {
             padding: 18px 45px;
             font-size: 22px;
@@ -30,76 +31,89 @@
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.4);
             z-index: 10000;
             transition: all 0.4s;
             font-weight: bold;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
         }
         #giftButton:hover { 
             transform: scale(1.05); 
-            box-shadow: 0 0 35px rgba(212, 175, 55, 0.6);
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.7);
         }
 
-        /* 訊息卡片：簡約白底金邊 */
+        /* 彈出小訊息 */
         .message {
             position: absolute;
             padding: 15px 25px;
             background: rgba(255, 255, 255, 0.98);
-            border-radius: 10px;
+            border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             font-size: 18px;
             color: #1a2a6c;
             white-space: nowrap;
-            border-left: 5px solid var(--gold);
+            border-left: 4px solid var(--gold);
             pointer-events: none;
             opacity: 0;
             transform: scale(0);
-            transition: opacity 0.3s, transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: opacity 0.4s, transform 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .message.show {
-            opacity: 1;
-            transform: scale(1) rotate(var(--r));
-        }
+        .message.show { opacity: 1; transform: scale(1) rotate(var(--r)); }
 
-        /* 結尾致謝框 */
-        #finalMessage {
+        /* 結尾大卡片 */
+        #finalCard {
             position: fixed;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%) scale(0.7);
-            background: white;
-            padding: 50px;
-            border-radius: 15px;
-            box-shadow: 0 0 60px rgba(0,0,0,0.5);
-            text-align: center;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: var(--card-bg);
+            padding: 60px 50px;
+            border-radius: 4px;
+            box-shadow: 0 20px 80px rgba(0,0,0,0.6);
             z-index: 20000;
             opacity: 0;
             visibility: hidden;
-            transition: all 1s ease-in-out;
-            border: 1px solid var(--gold);
+            transition: all 1.5s cubic-bezier(0.19, 1, 0.22, 1);
+            border: 1px solid #eee;
+            max-width: 85%;
+            min-width: 320px;
         }
 
-        #finalMessage.active {
-            opacity: 1;
-            visibility: visible;
-            transform: translate(-50%, -50%) scale(1);
+        #finalCard::before {
+            content: "";
+            position: absolute;
+            top: 20px; left: 20px; right: 20px; bottom: 20px;
+            border: 2px solid var(--gold);
+            pointer-events: none;
         }
 
-        #finalMessage h2 {
+        #finalCard.active { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
+
+        #finalText {
             color: #1a2a6c;
-            margin: 0;
-            font-size: 28px;
-            line-height: 1.8;
+            font-size: 26px;
+            line-height: 2.2;
+            text-align: center;
+            margin-bottom: 40px;
             font-weight: bold;
         }
 
-        .star { position: absolute; background: white; border-radius: 50%; opacity: 0; animation: blink 2s infinite; }
-        .particle { position: absolute; width: 5px; height: 5px; border-radius: 50%; pointer-events: none; }
+        #signature {
+            color: #555;
+            font-size: 20px;
+            text-align: right;
+            opacity: 0;
+            transition: opacity 1.5s ease 1s;
+        }
+
+        #signature.show { opacity: 1; }
+
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0; animation: blink 3s infinite; }
+        .particle { position: absolute; width: 4px; height: 4px; border-radius: 50%; pointer-events: none; }
         
-        @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 0.6; } }
-        @keyframes particleExplode {
+        @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 0.5; } }
+        @keyframes explode {
             0% { transform: scale(1); opacity: 1; }
             100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
         }
@@ -107,21 +121,23 @@
 </head>
 <body>
 
-    <button id="giftButton">✉️ 點擊開啟學生的新年祝福</button>
+    <audio id="bgMusic" loop>
+        <source src="https://www.bensound.com/bensound-music/bensound-tenderness.mp3" type="audio/mpeg">
+    </audio>
 
-    <div id="finalMessage">
-        <h2 id="finalText"></h2>
+    <button id="giftButton">✉️ 開啟 210 同學的新年祝福</button>
+
+    <div id="finalCard">
+        <div id="finalText"></div>
+        <div id="signature">學生 林博程 代表 210 敬上</div>
     </div>
 
     <script>
-        // ==========================================
-        // ⚙️ 設定區（給老師的版本）
-        // ==========================================
         const CONFIG = {
-            totalMessages: 17,      
-            speedMs: 300,           
-            typeSpeed: 60,
-            finalText: "感謝老師這一年來的教導與照顧，\n祝您 2026 新年快樂，\n平安順心，事事如意！" 
+            totalMessages: 26,      
+            speedMs: 450,           // 配合音樂調慢一點，更有韻味
+            typeSpeed: 80,          // 打字速度也稍微調慢
+            finalMessage: "感謝老師這一年來的教導與照顧，\n在此祝您 2026 新年快樂！\n願您在新的一年平安順心、事事如意。"
         };
 
         const messages = [
@@ -133,14 +149,16 @@
             "願您被歲月溫柔以待", "新的一年，祝福老師", "感謝老師辛苦的付出", 
             "祝老師家庭幸福美滿", "2026 萬事勝意"
         ];
-        // ==========================================
 
         const btn = document.getElementById('giftButton');
-        const finalBox = document.getElementById('finalMessage');
+        const finalCard = document.getElementById('finalCard');
         const finalTextEl = document.getElementById('finalText');
+        const sigEl = document.getElementById('signature');
+        const music = document.getElementById('bgMusic');
         let positions = [];
         let currentZIndex = 100;
 
+        // 星星背景
         for (let i = 0; i < 50; i++) {
             const star = document.createElement('div');
             star.className = 'star';
@@ -148,23 +166,23 @@
             star.style.width = size; star.style.height = size;
             star.style.left = Math.random() * 100 + 'vw';
             star.style.top = Math.random() * 100 + 'vh';
-            star.style.animationDelay = Math.random() * 2 + 's';
+            star.style.animationDelay = Math.random() * 3 + 's';
             document.body.appendChild(star);
         }
 
-        function createParticles(x, y) {
-            const colors = ['#d4af37', '#ffffff', '#76a5af', '#f4ce42'];
-            for (let i = 0; i < 10; i++) {
+        function createExplosion(x, y) {
+            const colors = ['#d4af37', '#ffffff', '#76a5af'];
+            for (let i = 0; i < 8; i++) {
                 const p = document.createElement('div');
                 p.className = 'particle';
                 p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                 p.style.left = x + 'px'; p.style.top = y + 'px';
-                const dx = (Math.random() - 0.5) * 180 + 'px';
-                const dy = (Math.random() - 0.5) * 180 + 'px';
+                const dx = (Math.random() - 0.5) * 150 + 'px';
+                const dy = (Math.random() - 0.5) * 150 + 'px';
                 p.style.setProperty('--dx', dx); p.style.setProperty('--dy', dy);
-                p.style.animation = 'particleExplode 1s ease-out forwards';
+                p.style.animation = 'explode 1.2s ease-out forwards';
                 document.body.appendChild(p);
-                setTimeout(() => p.remove(), 1000);
+                setTimeout(() => p.remove(), 1200);
             }
         }
 
@@ -175,8 +193,8 @@
             for (let i = 0; i < cols; i++) {
                 for (let j = 0; j < rows; j++) {
                     positions.push({
-                        x: i * cellW + Math.random() * (cellW - 180) + 10,
-                        y: j * cellH + Math.random() * (cellH - 60) + 10
+                        x: i * cellW + Math.random() * (cellW - 200) + 20,
+                        y: j * cellH + Math.random() * (cellH - 80) + 20
                     });
                 }
             }
@@ -191,6 +209,9 @@
         }
 
         btn.addEventListener('click', () => {
+            music.volume = 0.4; // 抒情歌建議音量再小一點點，更優雅
+            music.play();
+
             btn.style.transform = 'scale(0)';
             setTimeout(() => { btn.style.display = 'none'; }, 400);
             initGrid();
@@ -199,7 +220,7 @@
             const interval = setInterval(() => {
                 if (count >= CONFIG.totalMessages || count >= positions.length) {
                     clearInterval(interval);
-                    setTimeout(showFinalSurprise, 1000);
+                    setTimeout(showFinalCard, 1500);
                     return;
                 }
                 createPopUp(positions[count]);
@@ -211,7 +232,7 @@
             const div = document.createElement('div');
             div.className = 'message';
             const text = messages[Math.floor(Math.random() * messages.length)];
-            const rotate = (Math.random() - 0.5) * 15; 
+            const rotate = (Math.random() - 0.5) * 10; 
             currentZIndex++; 
             div.style.left = pos.x + 'px';
             div.style.top = pos.y + 'px';
@@ -220,19 +241,16 @@
             document.body.appendChild(div);
             setTimeout(() => {
                 div.classList.add('show');
-                createParticles(pos.x + 80, pos.y + 20);
+                createExplosion(pos.x + 80, pos.y + 20);
             }, 50);
             typeWriter(div, text);
         }
 
-        function showFinalSurprise() {
-            finalBox.classList.add('active');
-            typeWriter(finalTextEl, CONFIG.finalText);
-            for(let i=0; i<3; i++) {
-                setTimeout(() => {
-                    createParticles(window.innerWidth/2 + (Math.random()-0.5)*200, window.innerHeight/2);
-                }, i * 400);
-            }
+        function showFinalCard() {
+            finalCard.classList.add('active');
+            typeWriter(finalTextEl, CONFIG.finalMessage, 0, () => {
+                sigEl.classList.add('show');
+            });
         }
     </script>
 </body>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 新年感恩祝福</title>
+    <style>
+        :root {
+            --gold: #d4af37;
+            --deep-blue: #1a2a6c;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: radial-gradient(circle at center, #1a2a6c 0%, #101835 100%);
+            font-family: "Microsoft JhengHei", sans-serif;
+            overflow: hidden;
+        }
+
+        /* 感恩版按鈕：優雅金色感 */
+        #giftButton {
+            padding: 18px 45px;
+            font-size: 22px;
+            background: linear-gradient(135deg, #d4af37, #aa8928);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+            z-index: 10000;
+            transition: all 0.4s;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        #giftButton:hover { 
+            transform: scale(1.05); 
+            box-shadow: 0 0 35px rgba(212, 175, 55, 0.6);
+        }
+
+        /* 訊息卡片：簡約白底金邊 */
+        .message {
+            position: absolute;
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            font-size: 18px;
+            color: #1a2a6c;
+            white-space: nowrap;
+            border-left: 5px solid var(--gold);
+            pointer-events: none;
+            opacity: 0;
+            transform: scale(0);
+            transition: opacity 0.3s, transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .message.show {
+            opacity: 1;
+            transform: scale(1) rotate(var(--r));
+        }
+
+        /* 結尾致謝框 */
+        #finalMessage {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.7);
+            background: white;
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0 0 60px rgba(0,0,0,0.5);
+            text-align: center;
+            z-index: 20000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 1s ease-in-out;
+            border: 1px solid var(--gold);
+        }
+
+        #finalMessage.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        #finalMessage h2 {
+            color: #1a2a6c;
+            margin: 0;
+            font-size: 28px;
+            line-height: 1.8;
+            font-weight: bold;
+        }
+
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0; animation: blink 2s infinite; }
+        .particle { position: absolute; width: 5px; height: 5px; border-radius: 50%; pointer-events: none; }
+        
+        @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 0.6; } }
+        @keyframes particleExplode {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <button id="giftButton">✉️ 點擊開啟學生的新年祝福</button>
+
+    <div id="finalMessage">
+        <h2 id="finalText"></h2>
+    </div>
+
+    <script>
+        // ==========================================
+        // ⚙️ 設定區（給老師的版本）
+        // ==========================================
+        const CONFIG = {
+            totalMessages: 28,      
+            speedMs: 300,           
+            typeSpeed: 60,
+            finalText: "感謝老師這一年來的教導與照顧，\n祝您 2026 新年快樂，\n平安順心，事事如意！" 
+        };
+
+        const messages = [
+            "老師辛苦了！", "感謝老師的耐心教導", "祝老師新年快樂", 
+            "2026 也要平安健康", "春風化雨，感謝有您", "祝老師事事如意", 
+            "謝謝老師這一年來的照顧", "願老師每天都有好心情", "Happy New Year 2026", 
+            "感謝老師的包容", "祝老師桃李滿天下", "2025 感謝您的指引", 
+            "祝您新的一年平安順心", "老師，新年快樂！", "感謝您的諄諄教誨", 
+            "願您被歲月溫柔以待", "新的一年，祝福老師", "感謝老師辛苦的付出", 
+            "祝老師家庭幸福美滿", "2026 萬事勝意"
+        ];
+        // ==========================================
+
+        const btn = document.getElementById('giftButton');
+        const finalBox = document.getElementById('finalMessage');
+        const finalTextEl = document.getElementById('finalText');
+        let positions = [];
+        let currentZIndex = 100;
+
+        for (let i = 0; i < 50; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            const size = Math.random() * 2 + 'px';
+            star.style.width = size; star.style.height = size;
+            star.style.left = Math.random() * 100 + 'vw';
+            star.style.top = Math.random() * 100 + 'vh';
+            star.style.animationDelay = Math.random() * 2 + 's';
+            document.body.appendChild(star);
+        }
+
+        function createParticles(x, y) {
+            const colors = ['#d4af37', '#ffffff', '#76a5af', '#f4ce42'];
+            for (let i = 0; i < 10; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                p.style.left = x + 'px'; p.style.top = y + 'px';
+                const dx = (Math.random() - 0.5) * 180 + 'px';
+                const dy = (Math.random() - 0.5) * 180 + 'px';
+                p.style.setProperty('--dx', dx); p.style.setProperty('--dy', dy);
+                p.style.animation = 'particleExplode 1s ease-out forwards';
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 1000);
+            }
+        }
+
+        function initGrid() {
+            const cols = 5; const rows = 6; 
+            const cellW = window.innerWidth / cols;
+            const cellH = window.innerHeight / rows;
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    positions.push({
+                        x: i * cellW + Math.random() * (cellW - 180) + 10,
+                        y: j * cellH + Math.random() * (cellH - 60) + 10
+                    });
+                }
+            }
+            positions.sort(() => Math.random() - 0.5);
+        }
+
+        function typeWriter(element, text, i = 0, callback) {
+            if (i < text.length) {
+                element.innerHTML += text.charAt(i) === '\n' ? '<br>' : text.charAt(i);
+                setTimeout(() => typeWriter(element, text, i + 1, callback), CONFIG.typeSpeed);
+            } else if (callback) callback();
+        }
+
+        btn.addEventListener('click', () => {
+            btn.style.transform = 'scale(0)';
+            setTimeout(() => { btn.style.display = 'none'; }, 400);
+            initGrid();
+            
+            let count = 0;
+            const interval = setInterval(() => {
+                if (count >= CONFIG.totalMessages || count >= positions.length) {
+                    clearInterval(interval);
+                    setTimeout(showFinalSurprise, 1000);
+                    return;
+                }
+                createPopUp(positions[count]);
+                count++;
+            }, CONFIG.speedMs);
+        });
+
+        function createPopUp(pos) {
+            const div = document.createElement('div');
+            div.className = 'message';
+            const text = messages[Math.floor(Math.random() * messages.length)];
+            const rotate = (Math.random() - 0.5) * 15; 
+            currentZIndex++; 
+            div.style.left = pos.x + 'px';
+            div.style.top = pos.y + 'px';
+            div.style.zIndex = currentZIndex;
+            div.style.setProperty('--r', rotate + 'deg');
+            document.body.appendChild(div);
+            setTimeout(() => {
+                div.classList.add('show');
+                createParticles(pos.x + 80, pos.y + 20);
+            }, 50);
+            typeWriter(div, text);
+        }
+
+        function showFinalSurprise() {
+            finalBox.classList.add('active');
+            typeWriter(finalTextEl, CONFIG.finalText);
+            for(let i=0; i<3; i++) {
+                setTimeout(() => {
+                    createParticles(window.innerWidth/2 + (Math.random()-0.5)*200, window.innerHeight/2);
+                }, i * 400);
+            }
+        }
+    </script>
+</body>
+</html>

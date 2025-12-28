@@ -9,6 +9,7 @@
             --gold: #d4af37;
             --deep-blue: #1a2a6c;
             --card-bg: #fffdf9;
+            --heart-pink-red: #ff4d6d; /* 桃紅色 */
         }
 
         body {
@@ -58,61 +59,111 @@
             transform: scale(0);
             transition: opacity 0.4s, transform 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
         .message.show { opacity: 1; transform: scale(1) rotate(var(--r)); }
 
-        /* 結尾大卡片 */
+        /* 結尾大卡片容器 */
         #finalCard {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.8);
             background: var(--card-bg);
-            padding: 60px 50px;
-            border-radius: 4px;
-            box-shadow: 0 20px 80px rgba(0,0,0,0.6);
+            padding: 60px 40px;
+            border-radius: 12px;
+            box-shadow: 0 25px 100px rgba(0,0,0,0.8);
             z-index: 20000;
             opacity: 0;
             visibility: hidden;
             transition: all 1.5s cubic-bezier(0.19, 1, 0.22, 1);
-            border: 1px solid #eee;
-            max-width: 85%;
+            max-width: 80%;
             min-width: 320px;
-        }
-
-        #finalCard::before {
-            content: "";
-            position: absolute;
-            top: 20px; left: 20px; right: 20px; bottom: 20px;
-            border: 2px solid var(--gold);
-            pointer-events: none;
+            text-align: center;
         }
 
         #finalCard.active { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
 
+        /* 特效 1：大的愛心線條框架 (加大尺寸) */
+        .heart-outline-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.5);
+            width: 700px; /* 從 500px 加大到 700px */
+            height: 700px;
+            z-index: 15000; 
+            opacity: 0;
+            transition: all 2.5s ease-out;
+            pointer-events: none;
+        }
+        .heart-outline-frame.show {
+            opacity: 0.5;
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+        .heart-outline-frame svg {
+            width: 100%;
+            height: 100%;
+            fill: none;
+            stroke: var(--heart-pink-red);
+            stroke-width: 1; /* 較細的線條更有框架感 */
+            stroke-dasharray: 1500;
+            stroke-dashoffset: 1500;
+            filter: drop-shadow(0 0 15px var(--heart-pink-red));
+        }
+        .heart-outline-frame.show svg {
+            animation: drawLine 3.5s forwards, pulseFrame 4s infinite 3.5s;
+        }
+
+        @keyframes drawLine {
+            to { stroke-dashoffset: 0; }
+        }
+        @keyframes pulseFrame {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.08); opacity: 0.7; }
+        }
+
         #finalText {
             color: #1a2a6c;
-            font-size: 26px;
-            line-height: 2.2;
-            text-align: center;
-            margin-bottom: 40px;
+            font-size: 24px;
+            line-height: 2;
+            margin-bottom: 30px;
             font-weight: bold;
+            position: relative;
+            z-index: 20005;
         }
 
         #signature {
             color: #555;
-            font-size: 20px;
+            font-size: 18px;
             text-align: right;
             opacity: 0;
             transition: opacity 1.5s ease 1s;
+            z-index: 20005;
         }
-
         #signature.show { opacity: 1; }
 
+        /* 特效 2：從下面浮出的愛心 (大、小兩種) */
+        .floating-heart {
+            position: fixed;
+            bottom: -100px;
+            color: var(--heart-pink-red);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 100;
+            user-select: none;
+            animation: floatUp var(--duration) ease-in forwards;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 0; }
+            20% { opacity: var(--max-opacity); }
+            100% { transform: translateY(-110vh) scale(var(--final-scale)) rotate(var(--rot)); opacity: 0; }
+        }
+
+        /* 背景星星 */
         .star { position: absolute; background: white; border-radius: 50%; opacity: 0; animation: blink 3s infinite; }
-        .particle { position: absolute; width: 4px; height: 4px; border-radius: 50%; pointer-events: none; }
-        
         @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 0.5; } }
+        
+        .particle { position: absolute; width: 4px; height: 4px; border-radius: 50%; pointer-events: none; }
         @keyframes explode {
             0% { transform: scale(1); opacity: 1; }
             100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
@@ -127,6 +178,13 @@
 
     <button id="giftButton">✉️ 開啟 210 同學的新年祝福</button>
 
+    <!-- 特效 1：大的愛心線條框架 -->
+    <div id="heartFrame" class="heart-outline-frame">
+        <svg viewBox="0 0 24 24">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+    </div>
+
     <div id="finalCard">
         <div id="finalText"></div>
         <div id="signature">學生 林博程 代表210 敬上</div>
@@ -135,8 +193,8 @@
     <script>
         const CONFIG = {
             totalMessages: 26,      
-            speedMs: 450,           // 配合音樂調慢一點，更有韻味
-            typeSpeed: 80,          // 打字速度也稍微調慢
+            speedMs: 450,           
+            typeSpeed: 80,          
             finalMessage: "感謝老師這一年來的教導與照顧，\n在此祝您 2026 新年快樂！\n願您在新的一年平安順心、事事如意。"
         };
 
@@ -145,8 +203,8 @@
             "祝老師 2026 平安健康", "春風化雨，感謝有您", "祝老師事事如意", 
             "謝謝老師這一年來的照顧", "願老師每天都有好心情", "Happy New Year 2026", 
             "感謝老師的包容", "祝老師桃李滿天下", "2025 感謝您的指引", 
-            "祝您新的一年平安順心", "老師，新年快樂！", "感謝您的諄諄教誨"
-            , "新的一年，祝福老師", "感謝老師辛苦的付出", "2026 萬事如意"
+            "祝您新的一年平安順心", "老師，新年快樂！", "感謝您的諄諄教誨",
+            "新的一年，祝福老師", "感謝老師辛苦的付出", "2026 萬事如意"
         ];
 
         const btn = document.getElementById('giftButton');
@@ -154,11 +212,13 @@
         const finalTextEl = document.getElementById('finalText');
         const sigEl = document.getElementById('signature');
         const music = document.getElementById('bgMusic');
+        const heartFrame = document.getElementById('heartFrame');
+
         let positions = [];
         let currentZIndex = 100;
 
-        // 星星背景
-        for (let i = 0; i < 50; i++) {
+        // 初始化星空
+        for (let i = 0; i < 60; i++) {
             const star = document.createElement('div');
             star.className = 'star';
             const size = Math.random() * 2 + 'px';
@@ -169,8 +229,39 @@
             document.body.appendChild(star);
         }
 
+        /**
+         * 產生浮出愛心的通用函式
+         * @param {boolean} isBig 是否為大愛心
+         */
+        function spawnFloatingHeart(isBig) {
+            const heart = document.createElement('div');
+            heart.className = 'floating-heart';
+            heart.innerHTML = '❤';
+            
+            // 根據大小調整參數
+            const sizeBase = isBig ? 50 : 15;
+            const sizeRand = isBig ? 50 : 15;
+            const size = sizeBase + Math.random() * sizeRand + 'px';
+            
+            const left = Math.random() * 100 + 'vw';
+            const duration = isBig ? (6 + Math.random() * 6) : (4 + Math.random() * 4);
+            const rot = (Math.random() - 0.5) * 60 + 'deg';
+            const maxOpacity = isBig ? (0.1 + Math.random() * 0.2) : (0.3 + Math.random() * 0.3);
+            const finalScale = isBig ? (1 + Math.random() * 0.5) : (1.2 + Math.random() * 0.8);
+
+            heart.style.fontSize = size;
+            heart.style.left = left;
+            heart.style.setProperty('--duration', duration + 's');
+            heart.style.setProperty('--rot', rot);
+            heart.style.setProperty('--max-opacity', maxOpacity);
+            heart.style.setProperty('--final-scale', finalScale);
+
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), duration * 1000);
+        }
+
         function createExplosion(x, y) {
-            const colors = ['#d4af37', '#ffffff', '#76a5af'];
+            const colors = ['#d4af37', '#ffffff', '#ff4d6d'];
             for (let i = 0; i < 8; i++) {
                 const p = document.createElement('div');
                 p.className = 'particle';
@@ -208,9 +299,8 @@
         }
 
         btn.addEventListener('click', () => {
-            music.volume = 0.4; // 抒情歌建議音量再小一點點，更優雅
-            music.play();
-
+            music.volume = 0.3;
+            music.play().catch(() => {});
             btn.style.transform = 'scale(0)';
             setTimeout(() => { btn.style.display = 'none'; }, 400);
             initGrid();
@@ -219,34 +309,34 @@
             const interval = setInterval(() => {
                 if (count >= CONFIG.totalMessages || count >= positions.length) {
                     clearInterval(interval);
-                    setTimeout(showFinalCard, 1500);
+                    setTimeout(showFinalCard, 1000);
                     return;
                 }
-                createPopUp(positions[count]);
+                const div = document.createElement('div');
+                div.className = 'message';
+                const text = messages[Math.floor(Math.random() * messages.length)];
+                const pos = positions[count];
+                div.style.left = pos.x + 'px';
+                div.style.top = pos.y + 'px';
+                div.style.zIndex = currentZIndex++;
+                div.style.setProperty('--r', (Math.random() - 0.5) * 10 + 'deg');
+                document.body.appendChild(div);
+                setTimeout(() => div.classList.add('show'), 50);
+                typeWriter(div, text);
                 count++;
             }, CONFIG.speedMs);
         });
 
-        function createPopUp(pos) {
-            const div = document.createElement('div');
-            div.className = 'message';
-            const text = messages[Math.floor(Math.random() * messages.length)];
-            const rotate = (Math.random() - 0.5) * 10; 
-            currentZIndex++; 
-            div.style.left = pos.x + 'px';
-            div.style.top = pos.y + 'px';
-            div.style.zIndex = currentZIndex;
-            div.style.setProperty('--r', rotate + 'deg');
-            document.body.appendChild(div);
-            setTimeout(() => {
-                div.classList.add('show');
-                createExplosion(pos.x + 80, pos.y + 20);
-            }, 50);
-            typeWriter(div, text);
-        }
-
         function showFinalCard() {
             finalCard.classList.add('active');
+            heartFrame.classList.add('show');
+            
+            // 開始產生漂浮大愛心 (頻率適中)
+            setInterval(() => spawnFloatingHeart(true), 1200);
+            
+            // 開始產生漂浮小愛心 (頻率較高，營造泡泡感)
+            setInterval(() => spawnFloatingHeart(false), 400);
+
             typeWriter(finalTextEl, CONFIG.finalMessage, 0, () => {
                 sigEl.classList.add('show');
             });

@@ -2,36 +2,39 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>2026 新年感恩賀卡</title>
     <style>
         :root {
             --gold: #d4af37;
             --deep-blue: #1a2a6c;
+            --dark-navy: #0a1128;
             --card-bg: #fffdf9;
-            --heart-pink-red: #ff4d6d; /* 桃紅色 */
+            --heart-pink-red: #ff4d6d;
         }
 
         * {
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
-            background: radial-gradient(circle at center, #1a2a6c 0%, #0a1128 100%);
+            /* 恢復深邃的放射狀漸層背景 */
+            background: radial-gradient(circle at center, var(--deep-blue) 0%, var(--dark-navy) 100%);
             font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
             overflow: hidden;
-            touch-action: manipulation; /* 優化手機點擊 */
+            width: 100%;
         }
 
         /* 按鈕：金屬質感 */
         #giftButton {
-            padding: 15px 35px;
-            font-size: 20px;
+            padding: 18px 45px;
+            font-size: 22px;
             background: linear-gradient(135deg, #d4af37, #aa8928);
             color: white;
             border: none;
@@ -42,7 +45,6 @@
             transition: all 0.4s;
             font-weight: bold;
             letter-spacing: 2px;
-            max-width: 90%;
         }
         #giftButton:hover { 
             transform: scale(1.05); 
@@ -52,7 +54,7 @@
         /* 彈出小訊息 */
         .message {
             position: absolute;
-            padding: 10px 18px;
+            padding: 12px 20px;
             background: rgba(255, 255, 255, 0.98);
             border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
@@ -67,44 +69,43 @@
         }
         .message.show { opacity: 1; transform: scale(1) rotate(var(--r)); }
 
-        /* 結尾大卡片容器 */
+        /* 結尾大卡片 */
         #finalCard {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.8);
             background: var(--card-bg);
-            padding: 40px 30px;
+            padding: 50px 30px;
             border-radius: 12px;
             box-shadow: 0 25px 100px rgba(0,0,0,0.8);
             z-index: 20000;
             opacity: 0;
             visibility: hidden;
-            transition: all 1.5s cubic-bezier(0.19, 1, 0.22, 1);
+            transition: all 1.2s cubic-bezier(0.19, 1, 0.22, 1);
             width: 85%;
-            max-width: 500px;
+            max-width: 480px;
             text-align: center;
         }
-
         #finalCard.active { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
 
-        /* 特效 1：大的愛心線條框架 - 手機響應式修正 */
+        /* 特效 1：大的愛心線條框架 */
         .heart-outline-frame {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.5);
-            width: 90vw; 
-            height: 90vw;
-            max-width: 700px;
-            max-height: 700px;
+            width: 95vw;
+            height: 95vw;
+            max-width: 750px;
+            max-height: 750px;
             z-index: 15000; 
             opacity: 0;
             transition: all 2.5s ease-out;
             pointer-events: none;
         }
         .heart-outline-frame.show {
-            opacity: 0.5;
+            opacity: 0.6;
             transform: translate(-50%, -50%) scale(1.1);
         }
         .heart-outline-frame svg {
@@ -112,26 +113,24 @@
             height: 100%;
             fill: none;
             stroke: var(--heart-pink-red);
-            stroke-width: 0.8; 
-            stroke-dasharray: 1500;
-            stroke-dashoffset: 1500;
+            stroke-width: 0.8;
+            stroke-dasharray: 2000;
+            stroke-dashoffset: 2000;
             filter: drop-shadow(0 0 15px var(--heart-pink-red));
         }
         .heart-outline-frame.show svg {
             animation: drawLine 3.5s forwards, pulseFrame 4s infinite 3.5s;
         }
 
-        @keyframes drawLine {
-            to { stroke-dashoffset: 0; }
-        }
+        @keyframes drawLine { to { stroke-dashoffset: 0; } }
         @keyframes pulseFrame {
             0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.05); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 0.8; }
         }
 
         #finalText {
             color: #1a2a6c;
-            font-size: 20px;
+            font-size: 22px;
             line-height: 1.8;
             margin-bottom: 25px;
             font-weight: bold;
@@ -152,33 +151,30 @@
         /* 特效 2：從下面浮出的愛心 */
         .floating-heart {
             position: fixed;
-            bottom: -100px;
+            bottom: -60px;
             color: var(--heart-pink-red);
             opacity: 0;
             pointer-events: none;
             z-index: 100;
-            user-select: none;
             animation: floatUp var(--duration) ease-in forwards;
         }
-
         @keyframes floatUp {
             0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 0; }
             20% { opacity: var(--max-opacity); }
             100% { transform: translateY(-110vh) scale(var(--final-scale)) rotate(var(--rot)); opacity: 0; }
         }
 
-        /* 響應式字體調整 (手機) */
-        @media (max-width: 600px) {
-            #finalText { font-size: 18px; }
-            .message { font-size: 14px; padding: 8px 14px; }
-            #finalCard { padding: 40px 20px; }
-            #giftButton { font-size: 18px; padding: 12px 30px; }
-        }
-
         /* 背景星星 */
         .star { position: absolute; background: white; border-radius: 50%; opacity: 0; animation: blink 3s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 0.5; } }
-        
+        @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 0.6; } }
+
+        /* 響應式優化 */
+        @media (max-width: 600px) {
+            #finalText { font-size: 18px; }
+            #giftButton { padding: 15px 35px; font-size: 18px; }
+            .message { font-size: 14px; padding: 10px 15px; }
+        }
+
         .particle { position: absolute; width: 4px; height: 4px; border-radius: 50%; pointer-events: none; }
         @keyframes explode {
             0% { transform: scale(1); opacity: 1; }
@@ -208,8 +204,8 @@
 
     <script>
         const CONFIG = {
-            totalMessages: 20,      // 手機版稍微減少一點訊息數量，避免太亂
-            speedMs: 500,           
+            totalMessages: window.innerWidth < 600 ? 18 : 30, 
+            speedMs: 450,           
             typeSpeed: 60,          
             finalMessage: "感謝老師這一年來的教導與照顧，\n在此祝您 2026 新年快樂！\n願您在新的一年平安順心、事事如意。"
         };
@@ -233,11 +229,11 @@
         let positions = [];
         let currentZIndex = 100;
 
-        // 初始化星空
-        for (let i = 0; i < 40; i++) {
+        // 恢復大量的星星 (60顆)
+        for (let i = 0; i < 60; i++) {
             const star = document.createElement('div');
             star.className = 'star';
-            const size = Math.random() * 2 + 'px';
+            const size = Math.random() * 2.5 + 'px';
             star.style.width = size; star.style.height = size;
             star.style.left = Math.random() * 100 + 'vw';
             star.style.top = Math.random() * 100 + 'vh';
@@ -245,42 +241,32 @@
             document.body.appendChild(star);
         }
 
-        function spawnFloatingHeart(isBig) {
+        function spawnFloatingHeart() {
             const heart = document.createElement('div');
             heart.className = 'floating-heart';
             heart.innerHTML = '❤';
-            
-            const sizeBase = isBig ? (window.innerWidth < 600 ? 30 : 50) : 15;
-            const sizeRand = isBig ? (window.innerWidth < 600 ? 20 : 50) : 15;
-            const size = sizeBase + Math.random() * sizeRand + 'px';
-            
-            const left = Math.random() * 100 + 'vw';
-            const duration = isBig ? (6 + Math.random() * 6) : (4 + Math.random() * 4);
-            const rot = (Math.random() - 0.5) * 60 + 'deg';
-            const maxOpacity = isBig ? (0.1 + Math.random() * 0.2) : (0.3 + Math.random() * 0.3);
-            const finalScale = isBig ? (1 + Math.random() * 0.5) : (1.2 + Math.random() * 0.8);
-
+            const isBig = Math.random() > 0.7;
+            const size = isBig ? (Math.random() * 30 + 30 + 'px') : (Math.random() * 15 + 12 + 'px');
             heart.style.fontSize = size;
-            heart.style.left = left;
+            heart.style.left = Math.random() * 100 + 'vw';
+            const duration = 4 + Math.random() * 5;
             heart.style.setProperty('--duration', duration + 's');
-            heart.style.setProperty('--rot', rot);
-            heart.style.setProperty('--max-opacity', maxOpacity);
-            heart.style.setProperty('--final-scale', finalScale);
-
+            heart.style.setProperty('--rot', (Math.random() - 0.5) * 60 + 'deg');
+            heart.style.setProperty('--max-opacity', 0.2 + Math.random() * 0.4);
+            heart.style.setProperty('--final-scale', 1.2 + Math.random() * 1);
             document.body.appendChild(heart);
             setTimeout(() => heart.remove(), duration * 1000);
         }
 
         function createExplosion(x, y) {
             const colors = ['#d4af37', '#ffffff', '#ff4d6d'];
-            const num = window.innerWidth < 600 ? 5 : 8;
-            for (let i = 0; i < num; i++) {
+            for (let i = 0; i < 6; i++) {
                 const p = document.createElement('div');
                 p.className = 'particle';
                 p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                 p.style.left = x + 'px'; p.style.top = y + 'px';
-                const dx = (Math.random() - 0.5) * (window.innerWidth < 600 ? 80 : 150) + 'px';
-                const dy = (Math.random() - 0.5) * (window.innerWidth < 600 ? 80 : 150) + 'px';
+                const dx = (Math.random() - 0.5) * 120 + 'px';
+                const dy = (Math.random() - 0.5) * 120 + 'px';
                 p.style.setProperty('--dx', dx); p.style.setProperty('--dy', dy);
                 p.style.animation = 'explode 1.2s ease-out forwards';
                 document.body.appendChild(p);
@@ -289,17 +275,16 @@
         }
 
         function initGrid() {
-            // 針對小螢幕減少網格密度，避免溢出
             const isMobile = window.innerWidth < 600;
             const cols = isMobile ? 3 : 5; 
-            const rows = isMobile ? 5 : 6; 
+            const rows = isMobile ? 6 : 6; 
             const cellW = window.innerWidth / cols;
             const cellH = window.innerHeight / rows;
             for (let i = 0; i < cols; i++) {
                 for (let j = 0; j < rows; j++) {
                     positions.push({
-                        x: i * cellW + Math.random() * (cellW - (isMobile ? 120 : 200)) + 10,
-                        y: j * cellH + Math.random() * (cellH - (isMobile ? 60 : 80)) + 10
+                        x: i * cellW + Math.random() * (cellW * 0.6) + (cellW * 0.05),
+                        y: j * cellH + Math.random() * (cellH * 0.6) + (cellH * 0.05)
                     });
                 }
             }
@@ -321,9 +306,8 @@
             initGrid();
             
             let count = 0;
-            const totalToSpawn = Math.min(CONFIG.totalMessages, positions.length);
             const interval = setInterval(() => {
-                if (count >= totalToSpawn) {
+                if (count >= CONFIG.totalMessages || count >= positions.length) {
                     clearInterval(interval);
                     setTimeout(showFinalCard, 1000);
                     return;
@@ -332,14 +316,14 @@
                 div.className = 'message';
                 const text = messages[Math.floor(Math.random() * messages.length)];
                 const pos = positions[count];
-                div.style.left = pos.x + 'px';
-                div.style.top = pos.y + 'px';
+                div.style.left = Math.min(pos.x, window.innerWidth - 150) + 'px';
+                div.style.top = Math.min(pos.y, window.innerHeight - 80) + 'px';
                 div.style.zIndex = currentZIndex++;
-                div.style.setProperty('--r', (Math.random() - 0.5) * 10 + 'deg');
+                div.style.setProperty('--r', (Math.random() - 0.5) * 15 + 'deg');
                 document.body.appendChild(div);
                 setTimeout(() => {
                     div.classList.add('show');
-                    createExplosion(pos.x + 50, pos.y + 20);
+                    createExplosion(parseFloat(div.style.left) + 40, parseFloat(div.style.top) + 20);
                 }, 50);
                 typeWriter(div, text);
                 count++;
@@ -349,10 +333,7 @@
         function showFinalCard() {
             finalCard.classList.add('active');
             heartFrame.classList.add('show');
-            
-            setInterval(() => spawnFloatingHeart(true), 1500);
-            setInterval(() => spawnFloatingHeart(false), 600);
-
+            setInterval(spawnFloatingHeart, 500);
             typeWriter(finalTextEl, CONFIG.finalMessage, 0, () => {
                 sigEl.classList.add('show');
             });

@@ -24,7 +24,6 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            /* 恢復深邃的放射狀漸層背景 */
             background: radial-gradient(circle at center, var(--deep-blue) 0%, var(--dark-navy) 100%);
             font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
             overflow: hidden;
@@ -69,44 +68,38 @@
         }
         .message.show { opacity: 1; transform: scale(1) rotate(var(--r)); }
 
-        /* 結尾大卡片 */
-        #finalCard {
+        /* 中央定位舞台：確保所有特效與卡片中心對齊 */
+        #stage {
             position: fixed;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%) scale(0.8);
-            background: var(--card-bg);
-            padding: 50px 30px;
-            border-radius: 12px;
-            box-shadow: 0 25px 100px rgba(0,0,0,0.8);
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
             z-index: 20000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 1.2s cubic-bezier(0.19, 1, 0.22, 1);
-            width: 85%;
-            max-width: 480px;
-            text-align: center;
+            visibility: hidden; /* 預設隱藏 */
         }
-        #finalCard.active { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
+        #stage.active { visibility: visible; }
 
         /* 特效 1：大的愛心線條框架 */
         .heart-outline-frame {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.5);
-            width: 95vw;
-            height: 95vw;
-            max-width: 750px;
-            max-height: 750px;
-            z-index: 15000; 
+            /* 鎖定中心 */
+            width: 90vw;
+            height: 90vw;
+            max-width: 650px;
+            max-height: 650px;
             opacity: 0;
-            transition: all 2.5s ease-out;
-            pointer-events: none;
+            transform: scale(0.5);
+            transition: all 2s cubic-bezier(0.19, 1, 0.22, 1);
         }
-        .heart-outline-frame.show {
+        #stage.active .heart-outline-frame {
             opacity: 0.6;
-            transform: translate(-50%, -50%) scale(1.1);
+            transform: scale(1.1); /* 稍微比卡片大一點 */
         }
         .heart-outline-frame svg {
             width: 100%;
@@ -118,15 +111,33 @@
             stroke-dashoffset: 2000;
             filter: drop-shadow(0 0 15px var(--heart-pink-red));
         }
-        .heart-outline-frame.show svg {
+        #stage.active .heart-outline-frame svg {
             animation: drawLine 3.5s forwards, pulseFrame 4s infinite 3.5s;
         }
 
         @keyframes drawLine { to { stroke-dashoffset: 0; } }
         @keyframes pulseFrame {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
+            0%, 100% { transform: scale(1); opacity: 0.6; }
             50% { transform: scale(1.05); opacity: 0.8; }
         }
+
+        /* 結尾大卡片 */
+        #finalCard {
+            position: relative; /* 改為相對定位在 stage 內 */
+            background: var(--card-bg);
+            padding: 50px 30px;
+            border-radius: 12px;
+            box-shadow: 0 25px 100px rgba(0,0,0,0.8);
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+            width: 85%;
+            max-width: 450px;
+            text-align: center;
+            pointer-events: auto; /* 恢復可點擊 */
+            z-index: 20010;
+        }
+        #stage.active #finalCard { opacity: 1; transform: scale(1); }
 
         #finalText {
             color: #1a2a6c;
@@ -134,8 +145,6 @@
             line-height: 1.8;
             margin-bottom: 25px;
             font-weight: bold;
-            position: relative;
-            z-index: 20005;
         }
 
         #signature {
@@ -143,12 +152,11 @@
             font-size: 16px;
             text-align: right;
             opacity: 0;
-            transition: opacity 1.5s ease 1s;
-            z-index: 20005;
+            transition: opacity 1.5s ease 1.2s;
         }
         #signature.show { opacity: 1; }
 
-        /* 特效 2：從下面浮出的愛心 */
+        /* 特效 2：從下面浮出的小愛心 */
         .floating-heart {
             position: fixed;
             bottom: -60px;
@@ -164,15 +172,15 @@
             100% { transform: translateY(-110vh) scale(var(--final-scale)) rotate(var(--rot)); opacity: 0; }
         }
 
-        /* 背景星星 */
+        /* 星星 */
         .star { position: absolute; background: white; border-radius: 50%; opacity: 0; animation: blink 3s infinite; }
         @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 0.6; } }
 
-        /* 響應式優化 */
+        /* 手機調整 */
         @media (max-width: 600px) {
             #finalText { font-size: 18px; }
-            #giftButton { padding: 15px 35px; font-size: 18px; }
-            .message { font-size: 14px; padding: 10px 15px; }
+            #finalCard { padding: 40px 20px; }
+            .heart-outline-frame { width: 95vw; height: 95vw; }
         }
 
         .particle { position: absolute; width: 4px; height: 4px; border-radius: 50%; pointer-events: none; }
@@ -190,21 +198,25 @@
 
     <button id="giftButton">✉️ 開啟 210 同學的新年祝福</button>
 
-    <!-- 特效 1：大的愛心線條框架 -->
-    <div id="heartFrame" class="heart-outline-frame">
-        <svg viewBox="0 0 24 24">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-        </svg>
-    </div>
+    <!-- 中央舞台：鎖定框架與卡片 -->
+    <div id="stage">
+        <!-- 特效 1：大的愛心線條框架 (置於卡片下方) -->
+        <div class="heart-outline-frame">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+        </div>
 
-    <div id="finalCard">
-        <div id="finalText"></div>
-        <div id="signature">學生 林博程 代表210 敬上</div>
+        <!-- 結尾大卡片 -->
+        <div id="finalCard">
+            <div id="finalText"></div>
+            <div id="signature">學生 林博程 代表210 敬上</div>
+        </div>
     </div>
 
     <script>
         const CONFIG = {
-            totalMessages: window.innerWidth < 600 ? 18 : 30, 
+            totalMessages: window.innerWidth < 600 ? 18 : 26, 
             speedMs: 450,           
             typeSpeed: 60,          
             finalMessage: "感謝老師這一年來的教導與照顧，\n在此祝您 2026 新年快樂！\n願您在新的一年平安順心、事事如意。"
@@ -220,16 +232,16 @@
         ];
 
         const btn = document.getElementById('giftButton');
+        const stage = document.getElementById('stage');
         const finalCard = document.getElementById('finalCard');
         const finalTextEl = document.getElementById('finalText');
         const sigEl = document.getElementById('signature');
         const music = document.getElementById('bgMusic');
-        const heartFrame = document.getElementById('heartFrame');
 
         let positions = [];
         let currentZIndex = 100;
 
-        // 恢復大量的星星 (60顆)
+        // 星空背景
         for (let i = 0; i < 60; i++) {
             const star = document.createElement('div');
             star.className = 'star';
@@ -253,7 +265,7 @@
             heart.style.setProperty('--duration', duration + 's');
             heart.style.setProperty('--rot', (Math.random() - 0.5) * 60 + 'deg');
             heart.style.setProperty('--max-opacity', 0.2 + Math.random() * 0.4);
-            heart.style.setProperty('--final-scale', 1.2 + Math.random() * 1);
+            heart.style.setProperty('--final-scale', 1.2 + Math.random() * 0.8);
             document.body.appendChild(heart);
             setTimeout(() => heart.remove(), duration * 1000);
         }
@@ -283,8 +295,8 @@
             for (let i = 0; i < cols; i++) {
                 for (let j = 0; j < rows; j++) {
                     positions.push({
-                        x: i * cellW + Math.random() * (cellW * 0.6) + (cellW * 0.05),
-                        y: j * cellH + Math.random() * (cellH * 0.6) + (cellH * 0.05)
+                        x: i * cellW + Math.random() * (cellW * 0.5) + (cellW * 0.1),
+                        y: j * cellH + Math.random() * (cellH * 0.5) + (cellH * 0.1)
                     });
                 }
             }
@@ -316,10 +328,10 @@
                 div.className = 'message';
                 const text = messages[Math.floor(Math.random() * messages.length)];
                 const pos = positions[count];
-                div.style.left = Math.min(pos.x, window.innerWidth - 150) + 'px';
-                div.style.top = Math.min(pos.y, window.innerHeight - 80) + 'px';
+                div.style.left = Math.min(pos.x, window.innerWidth - 120) + 'px';
+                div.style.top = Math.min(pos.y, window.innerHeight - 50) + 'px';
                 div.style.zIndex = currentZIndex++;
-                div.style.setProperty('--r', (Math.random() - 0.5) * 15 + 'deg');
+                div.style.setProperty('--r', (Math.random() - 0.5) * 10 + 'deg');
                 document.body.appendChild(div);
                 setTimeout(() => {
                     div.classList.add('show');
@@ -331,9 +343,13 @@
         });
 
         function showFinalCard() {
-            finalCard.classList.add('active');
-            heartFrame.classList.add('show');
+            // 啟用中央舞台，這會同時觸發愛心線條與大卡片的動畫
+            stage.classList.add('active');
+            
+            // 開始下方漂浮愛心
             setInterval(spawnFloatingHeart, 500);
+
+            // 打字顯示最後訊息
             typeWriter(finalTextEl, CONFIG.finalMessage, 0, () => {
                 sigEl.classList.add('show');
             });

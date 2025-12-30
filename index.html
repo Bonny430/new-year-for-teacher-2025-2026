@@ -12,6 +12,10 @@
             --heart-pink-red: #ff4d6d; /* 桃紅色 */
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             display: flex;
             justify-content: center;
@@ -21,12 +25,13 @@
             background: radial-gradient(circle at center, #1a2a6c 0%, #0a1128 100%);
             font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
             overflow: hidden;
+            touch-action: manipulation; /* 優化手機點擊 */
         }
 
         /* 按鈕：金屬質感 */
         #giftButton {
-            padding: 18px 45px;
-            font-size: 22px;
+            padding: 15px 35px;
+            font-size: 20px;
             background: linear-gradient(135deg, #d4af37, #aa8928);
             color: white;
             border: none;
@@ -37,6 +42,7 @@
             transition: all 0.4s;
             font-weight: bold;
             letter-spacing: 2px;
+            max-width: 90%;
         }
         #giftButton:hover { 
             transform: scale(1.05); 
@@ -46,11 +52,11 @@
         /* 彈出小訊息 */
         .message {
             position: absolute;
-            padding: 15px 25px;
+            padding: 10px 18px;
             background: rgba(255, 255, 255, 0.98);
             border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            font-size: 18px;
+            font-size: 16px;
             color: #1a2a6c;
             white-space: nowrap;
             border-left: 4px solid var(--gold);
@@ -68,28 +74,30 @@
             left: 50%;
             transform: translate(-50%, -50%) scale(0.8);
             background: var(--card-bg);
-            padding: 60px 40px;
+            padding: 40px 30px;
             border-radius: 12px;
             box-shadow: 0 25px 100px rgba(0,0,0,0.8);
             z-index: 20000;
             opacity: 0;
             visibility: hidden;
             transition: all 1.5s cubic-bezier(0.19, 1, 0.22, 1);
-            max-width: 80%;
-            min-width: 320px;
+            width: 85%;
+            max-width: 500px;
             text-align: center;
         }
 
         #finalCard.active { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
 
-        /* 特效 1：大的愛心線條框架 (加大尺寸) */
+        /* 特效 1：大的愛心線條框架 - 手機響應式修正 */
         .heart-outline-frame {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.5);
-            width: 700px; /* 從 500px 加大到 700px */
-            height: 700px;
+            width: 90vw; 
+            height: 90vw;
+            max-width: 700px;
+            max-height: 700px;
             z-index: 15000; 
             opacity: 0;
             transition: all 2.5s ease-out;
@@ -97,14 +105,14 @@
         }
         .heart-outline-frame.show {
             opacity: 0.5;
-            transform: translate(-50%, -50%) scale(1.2);
+            transform: translate(-50%, -50%) scale(1.1);
         }
         .heart-outline-frame svg {
             width: 100%;
             height: 100%;
             fill: none;
             stroke: var(--heart-pink-red);
-            stroke-width: 1; /* 較細的線條更有框架感 */
+            stroke-width: 0.8; 
             stroke-dasharray: 1500;
             stroke-dashoffset: 1500;
             filter: drop-shadow(0 0 15px var(--heart-pink-red));
@@ -118,14 +126,14 @@
         }
         @keyframes pulseFrame {
             0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.08); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 0.7; }
         }
 
         #finalText {
             color: #1a2a6c;
-            font-size: 24px;
-            line-height: 2;
-            margin-bottom: 30px;
+            font-size: 20px;
+            line-height: 1.8;
+            margin-bottom: 25px;
             font-weight: bold;
             position: relative;
             z-index: 20005;
@@ -133,7 +141,7 @@
 
         #signature {
             color: #555;
-            font-size: 18px;
+            font-size: 16px;
             text-align: right;
             opacity: 0;
             transition: opacity 1.5s ease 1s;
@@ -141,7 +149,7 @@
         }
         #signature.show { opacity: 1; }
 
-        /* 特效 2：從下面浮出的愛心 (大、小兩種) */
+        /* 特效 2：從下面浮出的愛心 */
         .floating-heart {
             position: fixed;
             bottom: -100px;
@@ -157,6 +165,14 @@
             0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 0; }
             20% { opacity: var(--max-opacity); }
             100% { transform: translateY(-110vh) scale(var(--final-scale)) rotate(var(--rot)); opacity: 0; }
+        }
+
+        /* 響應式字體調整 (手機) */
+        @media (max-width: 600px) {
+            #finalText { font-size: 18px; }
+            .message { font-size: 14px; padding: 8px 14px; }
+            #finalCard { padding: 40px 20px; }
+            #giftButton { font-size: 18px; padding: 12px 30px; }
         }
 
         /* 背景星星 */
@@ -192,9 +208,9 @@
 
     <script>
         const CONFIG = {
-            totalMessages: 26,      
-            speedMs: 450,           
-            typeSpeed: 80,          
+            totalMessages: 20,      // 手機版稍微減少一點訊息數量，避免太亂
+            speedMs: 500,           
+            typeSpeed: 60,          
             finalMessage: "感謝老師這一年來的教導與照顧，\n在此祝您 2026 新年快樂！\n願您在新的一年平安順心、事事如意。"
         };
 
@@ -218,7 +234,7 @@
         let currentZIndex = 100;
 
         // 初始化星空
-        for (let i = 0; i < 60; i++) {
+        for (let i = 0; i < 40; i++) {
             const star = document.createElement('div');
             star.className = 'star';
             const size = Math.random() * 2 + 'px';
@@ -229,18 +245,13 @@
             document.body.appendChild(star);
         }
 
-        /**
-         * 產生浮出愛心的通用函式
-         * @param {boolean} isBig 是否為大愛心
-         */
         function spawnFloatingHeart(isBig) {
             const heart = document.createElement('div');
             heart.className = 'floating-heart';
             heart.innerHTML = '❤';
             
-            // 根據大小調整參數
-            const sizeBase = isBig ? 50 : 15;
-            const sizeRand = isBig ? 50 : 15;
+            const sizeBase = isBig ? (window.innerWidth < 600 ? 30 : 50) : 15;
+            const sizeRand = isBig ? (window.innerWidth < 600 ? 20 : 50) : 15;
             const size = sizeBase + Math.random() * sizeRand + 'px';
             
             const left = Math.random() * 100 + 'vw';
@@ -262,13 +273,14 @@
 
         function createExplosion(x, y) {
             const colors = ['#d4af37', '#ffffff', '#ff4d6d'];
-            for (let i = 0; i < 8; i++) {
+            const num = window.innerWidth < 600 ? 5 : 8;
+            for (let i = 0; i < num; i++) {
                 const p = document.createElement('div');
                 p.className = 'particle';
                 p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                 p.style.left = x + 'px'; p.style.top = y + 'px';
-                const dx = (Math.random() - 0.5) * 150 + 'px';
-                const dy = (Math.random() - 0.5) * 150 + 'px';
+                const dx = (Math.random() - 0.5) * (window.innerWidth < 600 ? 80 : 150) + 'px';
+                const dy = (Math.random() - 0.5) * (window.innerWidth < 600 ? 80 : 150) + 'px';
                 p.style.setProperty('--dx', dx); p.style.setProperty('--dy', dy);
                 p.style.animation = 'explode 1.2s ease-out forwards';
                 document.body.appendChild(p);
@@ -277,14 +289,17 @@
         }
 
         function initGrid() {
-            const cols = 5; const rows = 6; 
+            // 針對小螢幕減少網格密度，避免溢出
+            const isMobile = window.innerWidth < 600;
+            const cols = isMobile ? 3 : 5; 
+            const rows = isMobile ? 5 : 6; 
             const cellW = window.innerWidth / cols;
             const cellH = window.innerHeight / rows;
             for (let i = 0; i < cols; i++) {
                 for (let j = 0; j < rows; j++) {
                     positions.push({
-                        x: i * cellW + Math.random() * (cellW - 200) + 20,
-                        y: j * cellH + Math.random() * (cellH - 80) + 20
+                        x: i * cellW + Math.random() * (cellW - (isMobile ? 120 : 200)) + 10,
+                        y: j * cellH + Math.random() * (cellH - (isMobile ? 60 : 80)) + 10
                     });
                 }
             }
@@ -306,8 +321,9 @@
             initGrid();
             
             let count = 0;
+            const totalToSpawn = Math.min(CONFIG.totalMessages, positions.length);
             const interval = setInterval(() => {
-                if (count >= CONFIG.totalMessages || count >= positions.length) {
+                if (count >= totalToSpawn) {
                     clearInterval(interval);
                     setTimeout(showFinalCard, 1000);
                     return;
@@ -321,7 +337,10 @@
                 div.style.zIndex = currentZIndex++;
                 div.style.setProperty('--r', (Math.random() - 0.5) * 10 + 'deg');
                 document.body.appendChild(div);
-                setTimeout(() => div.classList.add('show'), 50);
+                setTimeout(() => {
+                    div.classList.add('show');
+                    createExplosion(pos.x + 50, pos.y + 20);
+                }, 50);
                 typeWriter(div, text);
                 count++;
             }, CONFIG.speedMs);
@@ -331,11 +350,8 @@
             finalCard.classList.add('active');
             heartFrame.classList.add('show');
             
-            // 開始產生漂浮大愛心 (頻率適中)
-            setInterval(() => spawnFloatingHeart(true), 1200);
-            
-            // 開始產生漂浮小愛心 (頻率較高，營造泡泡感)
-            setInterval(() => spawnFloatingHeart(false), 400);
+            setInterval(() => spawnFloatingHeart(true), 1500);
+            setInterval(() => spawnFloatingHeart(false), 600);
 
             typeWriter(finalTextEl, CONFIG.finalMessage, 0, () => {
                 sigEl.classList.add('show');
